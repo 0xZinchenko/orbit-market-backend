@@ -29,6 +29,7 @@ public class Category {
        Category category = new Category();
 
        category.updateName(name);
+       category.updateDescription(description);
        return category;
     }
 
@@ -45,5 +46,9 @@ public class Category {
             );
         }
         this.name = newName;
+    }
+
+    public void updateDescription(String newDescription) {
+        this.description = newDescription;
     }
 }
