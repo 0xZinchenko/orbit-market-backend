@@ -1,6 +1,8 @@
 package com.zim4ik.spacecatmarket.product.exception;
 
-public class ProductNotFoundException extends RuntimeException {
+import com.zim4ik.spacecatmarket.exception.NotFoundException;
+
+public class ProductNotFoundException extends NotFoundException {
 
     public ProductNotFoundException(Long id) {
         super("Product with id: "  + id + " not found");

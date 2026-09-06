@@ -1,7 +1,5 @@
 package com.zim4ik.spacecatmarket.exception;
 
-import com.zim4ik.spacecatmarket.product.exception.InvalidProductException;
-import com.zim4ik.spacecatmarket.product.exception.ProductNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,8 +12,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ProductNotFoundException.class)
-    public ProblemDetail handleProductNotFound(ProductNotFoundException ex) {
+    @ExceptionHandler(NotFoundException.class)
+    public ProblemDetail handleNotFound(NotFoundException ex) {
         ProblemDetail problem = buildProblemDetail(
                 HttpStatus.NOT_FOUND,
                 "Not found",
@@ -48,11 +46,11 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
-    @ExceptionHandler(InvalidProductException.class)
-    public ProblemDetail handleInvalidProduct(InvalidProductException ex) {
+    @ExceptionHandler(DomainValidationException.class)
+    public ProblemDetail handleDomainValidation(DomainValidationException ex) {
         ProblemDetail problem = buildProblemDetail(
                 HttpStatus.BAD_REQUEST,
-                "Invalid product state",
+                "Invalid domain state",
                 ex.getMessage()
         );
         return problem;

@@ -1,6 +1,8 @@
 package com.zim4ik.spacecatmarket.category.exception;
 
-public class InvalidCategoryException extends RuntimeException {
+import com.zim4ik.spacecatmarket.exception.DomainValidationException;
+
+public class InvalidCategoryException extends DomainValidationException {
 
     public InvalidCategoryException(String message) {
         super(message);
