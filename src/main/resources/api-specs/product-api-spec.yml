@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Product API
-  description: API for managing marketplace products
+  description: API for managing marketplace products and categories
   version: 1.0.0
 paths:
   /api/v1/products:
@@ -135,6 +135,137 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
 
+  /api/v1/categories:
+    post:
+      summary: Create a new category
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDTO'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetail'
+
+    get:
+      summary: Get all categories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: List of all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDTO'
+
+  /api/v1/categories/{id}:
+    get:
+      summary: Get category by id
+      tags:
+        - Categories
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID of the category to retrieve
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Category found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    put:
+      summary: Update category
+      tags:
+        - Categories
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Category identifier
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryDTO'
+
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDTO'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationProblemDetail'
+
+    delete:
+      summary: Delete category
+      tags:
+        - Categories
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Category identifier
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '204':
+          description: Category deleted successfully
+
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
 
 components:
   schemas:
@@ -166,6 +297,38 @@ components:
           minimum: 0
           example: 199.99
 
+        categoryId:
+          type: integer
+          format: int64
+          nullable: true
+          description: ID of an existing Category this product belongs to. Optional.
+          example: 1
+
+    CategoryDTO:
+      type: object
+
+      required:
+        - name
+        - description
+
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+
+        name:
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: Snacks
+
+        description:
+          type: string
+          minLength: 1
+          maxLength: 256
+          example: Cosmic snacks for space cats
+
     ProblemDetail:
       type: object
 
@@ -177,7 +340,7 @@ components:
 
         title:
           type: string
-          example: Product not found
+          example: Not found
 
         status:
           type: integer
@@ -197,7 +360,7 @@ components:
       description: >
         ProblemDetail returned when request body fails Bean Validation
         (@Valid). Extends the base ProblemDetail with a map of
-        field-level error messages.
+        field name to the list of all validation messages for that field.
       allOf:
         - $ref: '#/components/schemas/ProblemDetail'
         - type: object
@@ -205,7 +368,9 @@ components:
             fieldErrors:
               type: object
               additionalProperties:
-                type: string
+                type: array
+                items:
+                  type: string
               example:
-                name: must not be blank
-                price: must not be null
+                name: ["must not be blank", "Name must be -  star, galaxy, comet"]
+                price: ["must not be null"]
