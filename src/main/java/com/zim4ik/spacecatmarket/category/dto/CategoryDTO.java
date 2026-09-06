@@ -10,5 +10,6 @@ public record CategoryDTO(Long id,
                           String name,
 
                           @NotBlank
+                          @Size(max = 256)
                           String description) {
 }
