@@ -14,5 +14,7 @@ public record ProductDTO(Long id,
 
                          @NotNull
                          @PositiveOrZero
-                         BigDecimal price) {
+                         BigDecimal price,
+
+                         Long categoryId) {
 }

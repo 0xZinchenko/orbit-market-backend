@@ -1,10 +1,8 @@
 package com.zim4ik.spacecatmarket.product.model;
 
+import com.zim4ik.spacecatmarket.category.model.Category;
 import com.zim4ik.spacecatmarket.product.exception.InvalidProductException;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,6 +21,9 @@ public class Product {
     private String name;
 
     private BigDecimal price;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Category category;
 
     public static Product create(String name, BigDecimal price) {
         Product product = new Product();
@@ -55,5 +56,9 @@ public class Product {
             );
         }
         this.name = newName;
+    }
+
+    public void assignCategory(Category category) {
+        this.category = category;
     }
 }

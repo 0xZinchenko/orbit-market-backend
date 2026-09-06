@@ -1,6 +1,9 @@
 package com.zim4ik.spacecatmarket.product.service;
 
 
+import com.zim4ik.spacecatmarket.category.exception.CategoryNotFoundException;
+import com.zim4ik.spacecatmarket.category.model.Category;
+import com.zim4ik.spacecatmarket.category.repository.CategoryRepository;
 import com.zim4ik.spacecatmarket.product.dto.ProductDTO;
 import com.zim4ik.spacecatmarket.product.exception.ProductNotFoundException;
 import com.zim4ik.spacecatmarket.product.mapper.ProductMapper;
@@ -16,12 +19,14 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
 
 
     public ProductDTO createProduct(ProductDTO productDTO) {
         Product product = Product.create(productDTO.name(),
                 productDTO.price());
+        product.assignCategory(resolveCategory(productDTO.categoryId()));
         Product saveProduct = productRepository.save(product);
         ProductDTO dto = productMapper.productToProductDto(saveProduct);
         return dto;
@@ -46,6 +51,7 @@ public class ProductService {
 
         product.updateName(productDTO.name());
         product.changePrice(productDTO.price());
+        product.assignCategory(resolveCategory(productDTO.categoryId()));
 
         Product updatedProduct = productRepository.save(product);
 
@@ -61,5 +67,14 @@ public class ProductService {
 
         productRepository.delete(product);
 
+    }
+
+    private Category resolveCategory(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new CategoryNotFoundException(categoryId));
     }
 }
