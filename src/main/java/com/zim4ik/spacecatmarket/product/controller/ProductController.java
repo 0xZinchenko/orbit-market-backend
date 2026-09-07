@@ -1,6 +1,7 @@
 package com.zim4ik.spacecatmarket.product.controller;
 
 import com.zim4ik.spacecatmarket.product.dto.ProductDTO;
+import com.zim4ik.spacecatmarket.product.dto.ProductPriceDTO;
 import com.zim4ik.spacecatmarket.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,11 @@ public class ProductController {
     @PutMapping("/{id}")
     public ProductDTO updateProduct(@PathVariable Long id, @Valid @RequestBody ProductDTO productDTO) {
         return productService.updateProduct(id, productDTO);
+    }
+
+    @GetMapping("/{id}/price")
+    public ProductPriceDTO getProductPrice(@PathVariable Long id, @RequestParam String currency) {
+        return productService.getProductPriceInCurrency(id, currency);
     }
 
     @DeleteMapping("/{id}")

@@ -4,7 +4,10 @@ package com.zim4ik.spacecatmarket.product.service;
 import com.zim4ik.spacecatmarket.category.exception.CategoryNotFoundException;
 import com.zim4ik.spacecatmarket.category.model.Category;
 import com.zim4ik.spacecatmarket.category.repository.CategoryRepository;
+import com.zim4ik.spacecatmarket.currency.client.CurrencyClient;
+import com.zim4ik.spacecatmarket.currency.dto.ExchangeRateResponse;
 import com.zim4ik.spacecatmarket.product.dto.ProductDTO;
+import com.zim4ik.spacecatmarket.product.dto.ProductPriceDTO;
 import com.zim4ik.spacecatmarket.product.exception.ProductNotFoundException;
 import com.zim4ik.spacecatmarket.product.mapper.ProductMapper;
 import com.zim4ik.spacecatmarket.product.model.Product;
@@ -12,15 +15,19 @@ import com.zim4ik.spacecatmarket.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class ProductService {
 
+    private static final String BASE_CURRENCY = "USD";
+
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
+    private final CurrencyClient currencyClient;
 
 
     public ProductDTO createProduct(ProductDTO productDTO) {
@@ -67,6 +74,16 @@ public class ProductService {
 
         productRepository.delete(product);
 
+    }
+
+    public ProductPriceDTO getProductPriceInCurrency(Long id, String currency) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        ExchangeRateResponse exchangeRate = currencyClient.getExchangeRate(BASE_CURRENCY, currency);
+        BigDecimal convertedPrice = product.getPrice().multiply(exchangeRate.rate());
+
+        return new ProductPriceDTO(id, product.getPrice(), currency, convertedPrice);
     }
 
     private Category resolveCategory(Long categoryId) {
