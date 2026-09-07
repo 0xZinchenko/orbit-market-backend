@@ -1,5 +1,6 @@
 package com.zim4ik.spacecatmarket.exception;
 
+import com.zim4ik.spacecatmarket.currency.exception.CurrencyApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,6 +57,15 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+
+    @ExceptionHandler(CurrencyApiException.class)
+    public ProblemDetail handleCurrencyApiException(CurrencyApiException ex) {
+        return buildProblemDetail(
+                HttpStatus.BAD_GATEWAY,
+                "Currency provider unavailable",
+                ex.getMessage()
+        );
+    }
 
     private ProblemDetail buildProblemDetail(HttpStatus status, String title, String detail) {
         ProblemDetail problem = ProblemDetail.forStatus(status);
