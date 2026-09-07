@@ -135,6 +135,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
 
+  /api/v1/products/{id}/price:
+    get:
+      summary: Get product price converted to another currency
+      description: >
+        Converts the product's price (stored in USD) into the requested
+        currency using a live exchange rate from a third-party currency API.
+      tags:
+        - Products
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: Product identifier
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: currency
+          required: true
+          description: ISO 4217 currency code to convert the price into (e.g. EUR)
+          schema:
+            type: string
+          example: EUR
+
+      responses:
+        '200':
+          description: Converted product price
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductPriceDTO'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '502':
+          description: Currency provider is unavailable or returned an unexpected response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
   /api/v1/categories:
     post:
       summary: Create a new category
@@ -303,6 +347,28 @@ components:
           nullable: true
           description: ID of an existing Category this product belongs to. Optional.
           example: 1
+
+    ProductPriceDTO:
+      type: object
+      properties:
+        productId:
+          type: integer
+          format: int64
+          example: 1
+
+        originalPrice:
+          type: number
+          description: Price as stored on the product, in USD
+          example: 100.00
+
+        currency:
+          type: string
+          description: Currency the price was converted into
+          example: EUR
+
+        convertedPrice:
+          type: number
+          example: 92.00
 
     CategoryDTO:
       type: object
