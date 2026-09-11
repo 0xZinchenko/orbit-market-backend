@@ -4,9 +4,15 @@ build/
 
 .idea/
 *.iml
+*.iws
+*.ipr
 out/
 
 .vscode/
+
+.classpath
+.project
+.settings/
 
 .DS_Store
 Thumbs.db
