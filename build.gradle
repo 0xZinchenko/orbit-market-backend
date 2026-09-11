@@ -6,7 +6,16 @@ plugins {
 
 group = 'com.zim4ik'
 version = '0.0.1-SNAPSHOT'
-description = 'Cosmo Cats Marketplace'
+description = 'Orbit-market-backend'
+
+ext {
+    minimumCoveragePerFile = 0.5
+    filesExcludedFromCoverage = [
+            "**/*MarketplaceApplication.*",
+            "**/*Config.*",
+            "**/mapper/*.*"
+    ]
+}
 
 java {
     toolchain {
@@ -36,6 +45,5 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
-}
+apply from: "${rootProject.projectDir}/gradle/test.gradle"
+apply from: "${rootProject.projectDir}/gradle/jacoco.gradle"

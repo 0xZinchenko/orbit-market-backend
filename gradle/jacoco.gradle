@@ -1,0 +1,45 @@
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.11"
+    reportsDirectory = layout.buildDirectory.dir("reports/coverage")
+}
+
+jacocoTestReport {
+    group = "Reporting"
+    description = "Creates the result report of the tests"
+
+    reports {
+        csv.required = true
+        xml.required = false
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir("reports/coverage")
+        csv.outputLocation = layout.buildDirectory.file("reports/coverage/coverage.csv").get().asFile
+    }
+
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: filesExcludedFromCoverage)
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    description = "Verifies coverage based on the minimum threshold defined per source file"
+
+    violationRules {
+        rule {
+            enabled = true
+            failOnViolation = true
+            element = 'SOURCEFILE'
+            excludes = filesExcludedFromCoverage
+            limit {
+                counter = 'LINE'
+                minimum = minimumCoveragePerFile
+            }
+        }
+    }
+}
+
+test.finalizedBy jacocoTestReport
+jacocoTestReport.finalizedBy jacocoTestCoverageVerification
