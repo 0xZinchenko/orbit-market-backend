@@ -1,6 +1,7 @@
 package com.zim4ik.spacecatmarket.exception;
 
 import com.zim4ik.spacecatmarket.currency.exception.CurrencyApiException;
+import com.zim4ik.spacecatmarket.feature.exception.FeatureNotAvailableException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -63,6 +64,15 @@ public class GlobalExceptionHandler {
         return buildProblemDetail(
                 HttpStatus.BAD_GATEWAY,
                 "Currency provider unavailable",
+                ex.getMessage()
+        );
+    }
+
+    @ExceptionHandler(FeatureNotAvailableException.class)
+    public ProblemDetail handleFeatureNotAvailable(FeatureNotAvailableException ex) {
+        return buildProblemDetail(
+                HttpStatus.FORBIDDEN,
+                "Feature not available",
                 ex.getMessage()
         );
     }
