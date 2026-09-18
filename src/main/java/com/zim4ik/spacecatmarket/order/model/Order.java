@@ -1,16 +1,20 @@
 package com.zim4ik.spacecatmarket.order.model;
 
-import com.zim4ik.spacecatmarket.product.model.Product;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.NaturalId;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "orders")
@@ -22,17 +26,25 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany
-    private List<Product> products;
+    @NaturalId
+    @Column(name = "order_number", nullable = false, unique = true, updatable = false)
+    private String orderNumber;
 
-    public static Order create(List<Product> products) {
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> items = new ArrayList<>();
+
+    public static Order create(List<OrderItem> items) {
         Order order = new Order();
-        order.products = products;
+        order.orderNumber = UUID.randomUUID().toString();
+        order.updateItems(items);
         return order;
     }
 
-    public void updateProducts(List<Product> products) {
-        this.products = products;
+    public void updateItems(List<OrderItem> newItems) {
+        items.clear();
+        for (OrderItem item : newItems) {
+            item.assignOrder(this);
+            items.add(item);
+        }
     }
-
 }

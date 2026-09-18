@@ -1,15 +1,16 @@
 package com.zim4ik.spacecatmarket.cart.model;
 
-import com.zim4ik.spacecatmarket.product.model.Product;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,17 +23,20 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToMany
-    private List<Product> products;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items = new ArrayList<>();
 
-    public static Cart create(List<Product> products) {
+    public static Cart create(List<CartItem> items) {
         Cart cart = new Cart();
-        cart.products = products;
+        cart.updateItems(items);
         return cart;
     }
 
-    public void updateProducts(List<Product> products) {
-        this.products = products;
+    public void updateItems(List<CartItem> newItems) {
+        items.clear();
+        for (CartItem item : newItems) {
+            item.assignCart(this);
+            items.add(item);
+        }
     }
-
 }

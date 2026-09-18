@@ -7,4 +7,8 @@ public class OrderNotFoundException extends NotFoundException {
     public OrderNotFoundException(Long id) {
         super("Order with id: " + id + " not found");
     }
+
+    public OrderNotFoundException(String orderNumber) {
+        super("Order with number: " + orderNumber + " not found");
+    }
 }
