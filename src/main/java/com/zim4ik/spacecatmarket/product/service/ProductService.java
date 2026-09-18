@@ -14,12 +14,14 @@ import com.zim4ik.spacecatmarket.product.model.Product;
 import com.zim4ik.spacecatmarket.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
 
     private static final String BASE_CURRENCY = "USD";
@@ -30,6 +32,7 @@ public class ProductService {
     private final CurrencyClient currencyClient;
 
 
+    @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
         Product product = Product.create(productDTO.name(),
                 productDTO.price());
@@ -52,6 +55,7 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
@@ -66,6 +70,7 @@ public class ProductService {
     }
 
 
+    @Transactional
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() ->
