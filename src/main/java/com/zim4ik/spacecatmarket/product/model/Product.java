@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 
 @Entity
+@Table(name = "products")
 @Getter
 @NoArgsConstructor
 public class Product {
