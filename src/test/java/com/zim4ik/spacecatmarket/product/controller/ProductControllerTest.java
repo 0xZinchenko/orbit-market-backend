@@ -5,9 +5,12 @@ import com.zim4ik.spacecatmarket.product.dto.ProductDTO;
 import com.zim4ik.spacecatmarket.product.dto.ProductPriceDTO;
 import com.zim4ik.spacecatmarket.product.exception.ProductNotFoundException;
 import com.zim4ik.spacecatmarket.product.service.ProductService;
+import com.zim4ik.spacecatmarket.security.config.SecurityConfig;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -21,6 +24,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ProductController.class)
+@Import(SecurityConfig.class)
+@WithMockUser
 class ProductControllerTest {
 
     @Autowired
