@@ -2,12 +2,13 @@
 
 [![Build and Test Coverage](https://github.com/0xZinchenko/Cosmo-Cats-Intergalactic-Marketplace/actions/workflows/pull_request.yml/badge.svg)](https://github.com/0xZinchenko/Cosmo-Cats-Intergalactic-Marketplace/actions/workflows/pull_request.yml)
 
-A backend for a marketplace platform, built to demonstrate production-grade Spring Boot architecture rather than a typical CRUD tutorial: layered validation, resilient third-party API integration, feature toggles via AOP, a normalized relational schema with versioned migrations, and a test pyramid backed by real infrastructure (PostgreSQL, WireMock) through Testcontainers.
+A backend for a marketplace platform, built to demonstrate production-grade Spring Boot architecture rather than a typical CRUD tutorial: layered validation, resilient third-party API integration, feature toggles via AOP, a normalized relational schema with versioned migrations, OAuth2/API-key authentication, and a test pyramid backed by real infrastructure (PostgreSQL, WireMock) through Testcontainers.
 
 ## Tech stack
 
 - **Java 21**, **Spring Boot 4**
 - **Spring Data JPA** + **PostgreSQL**, schema managed via **Liquibase**
+- **Spring Security** — OAuth2 Resource Server (JWT) + a custom API-key filter, with method-level authorization
 - **Spring AOP** for cross-cutting concerns (feature toggles)
 - **MapStruct** for entity/DTO mapping
 - **RestClient** for outbound HTTP integration
@@ -26,6 +27,13 @@ A backend for a marketplace platform, built to demonstrate production-grade Spri
 - **JPQL projections** — a "most purchased products" report built with interface-based projections and aggregate JPQL queries (`GROUP BY` / `ORDER BY` / `WHERE`), avoiding native SQL.
 - **Transactional service layer** — read-only by default at the class level, with write operations explicitly opted into read-write transactions.
 
+## Security
+
+- **OAuth2 Resource Server (JWT)** — protects all endpoints by default; signature verification against an RSA public key (`spring.security.oauth2.resourceserver.jwt.public-key-location`). Tested against a real, dynamically-served JWKS endpoint via WireMock + Testcontainers, including rejection of tokens signed by an untrusted key.
+- **API-key filter** — a custom `OncePerRequestFilter` authenticates service-to-service calls via an `X-API-Key` header, positioned ahead of the JWT filter in the chain so both mechanisms coexist. Invalid keys get a proper RFC 9457 error, not a silent fallthrough.
+- **Method-level authorization** — `@PreAuthorize("hasRole('SERVICE')")` restricts destructive operations (product/category deletion) to API-key-authenticated callers, independent of the HTTP-layer rules.
+- **`no-auth` profile** — disables authentication entirely for local manual testing: `./gradlew bootRun --args='--spring.profiles.active=no-auth'`.
+
 ## Running locally
 
 ```bash
@@ -33,14 +41,15 @@ docker compose up -d      # starts PostgreSQL
 ./gradlew bootRun          # runs the app; Liquibase applies the schema on startup
 ```
 
-API docs are served via Swagger UI at `/swagger-ui.html` once the app is running.
+API docs are served via Swagger UI at `/swagger-ui.html` once the app is running. Endpoints require authentication — either a valid JWT bearer token or an `X-API-Key` header — unless the app is started with the `no-auth` profile (see [Security](#security)).
 
 ## Example
 
-Create a product:
+Create a product (using the default dev API key):
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/products \
+  -H "X-API-Key: local-dev-key" \
   -H "Content-Type: application/json" \
   -d '{"name": "Galaxy Cat Plush", "price": 19.99}'
 ```
@@ -57,7 +66,7 @@ curl -X POST http://localhost:8080/api/v1/products \
 Get its price converted to another currency (live exchange rate, fetched from a third-party API):
 
 ```bash
-curl http://localhost:8080/api/v1/products/1/price?currency=EUR
+curl -H "X-API-Key: local-dev-key" http://localhost:8080/api/v1/products/1/price?currency=EUR
 ```
 
 ```json
@@ -75,9 +84,8 @@ curl http://localhost:8080/api/v1/products/1/price?currency=EUR
 ./gradlew build
 ```
 
-Runs the full suite (unit + integration) and enforces per-file JaCoCo coverage thresholds. Integration tests spin up real, disposable infrastructure through Testcontainers — PostgreSQL for repository/CRUD tests, WireMock for the external currency API — so tests exercise real SQL and real HTTP behavior instead of mocks alone.
+Runs the full suite (unit + integration) and enforces per-file JaCoCo coverage thresholds. Integration tests spin up real, disposable infrastructure through Testcontainers — PostgreSQL for repository/CRUD tests, WireMock for the external currency API and for the JWT resource server's JWKS endpoint — so tests exercise real SQL and real HTTP/crypto behavior instead of mocks alone.
 
 ## Roadmap
 
-- Spring Security with OAuth2 login and API-key authentication for service-to-service calls
 - Kafka-based eventing between services
