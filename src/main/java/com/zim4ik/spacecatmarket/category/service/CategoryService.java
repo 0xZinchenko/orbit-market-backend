@@ -6,6 +6,7 @@ import com.zim4ik.spacecatmarket.category.mapper.CategoryMapper;
 import com.zim4ik.spacecatmarket.category.model.Category;
 import com.zim4ik.spacecatmarket.category.repository.CategoryRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,6 +54,7 @@ public class CategoryService {
     }
 
     @Transactional
+    @PreAuthorize("hasRole('SERVICE')")
     public void deleteCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException(id));

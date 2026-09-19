@@ -13,6 +13,7 @@ import com.zim4ik.spacecatmarket.product.mapper.ProductMapper;
 import com.zim4ik.spacecatmarket.product.model.Product;
 import com.zim4ik.spacecatmarket.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,6 +72,7 @@ public class ProductService {
 
 
     @Transactional
+    @PreAuthorize("hasRole('SERVICE')")
     public void deleteProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() ->

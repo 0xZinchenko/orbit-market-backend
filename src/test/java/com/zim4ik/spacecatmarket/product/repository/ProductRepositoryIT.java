@@ -9,6 +9,7 @@ import com.zim4ik.spacecatmarket.testsupport.AbstractPostgresIT;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
+@WithMockUser(authorities = "ROLE_SERVICE")
 class ProductRepositoryIT extends AbstractPostgresIT {
 
     @Autowired

@@ -6,12 +6,14 @@ import com.zim4ik.spacecatmarket.category.service.CategoryService;
 import com.zim4ik.spacecatmarket.testsupport.AbstractPostgresIT;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @Transactional
+@WithMockUser(authorities = "ROLE_SERVICE")
 class CategoryRepositoryIT extends AbstractPostgresIT {
 
     @Autowired
